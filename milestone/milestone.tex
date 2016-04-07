@@ -116,7 +116,7 @@
 % *** GRAPHICS RELATED PACKAGES ***
 %
 \ifCLASSINFOpdf
-  % \usepackage[pdftex]{graphicx}
+   \usepackage[pdftex]{graphicx}
   % declare the path(s) where your graphic files are
   % \graphicspath{{../pdf/}{../jpeg/}}
   % and their extensions so you won't have to specify these with
@@ -159,7 +159,7 @@
 
 % *** MATH PACKAGES ***
 %
-%\usepackage{amsmath}
+\usepackage{amsmath}
 % A popular package from the American Mathematical Society that provides
 % many useful and powerful commands for dealing with mathematics.
 %
@@ -260,7 +260,7 @@
 % http://www.ctan.org/pkg/fixltx2e
 
 
-%\usepackage{stfloats}
+\usepackage{stfloats}
 % stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
 % the ability to do double column floats at the bottom of the page as well
 % as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
@@ -320,17 +320,17 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{EE240B Project Milestone}
+\title{Design of Oversampled ADC Integrators \\ \Large EE240B Project Milestone}
 
 
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
 \author{\IEEEauthorblockN{Emily Naviasky}
-\IEEEauthorblockA{enaviasky@berkeley.edu}
+\IEEEauthorblockA{Department of EECS, UC Berkeley \\enaviasky@berkeley.edu}
 \and
 \IEEEauthorblockN{Nathaniel Mailoa}
-\IEEEauthorblockA{nmailoa@berkeley.edu}
+\IEEEauthorblockA{Department of EECS, UC Berkeley \\nmailoa@berkeley.edu}
 }
 
 % make the title area
@@ -338,9 +338,9 @@
 
 % As a general rule, do not put math, special symbols or citations
 % in the abstract
-\begin{abstract}
-TODO: The abstract goes here.
-\end{abstract}
+%\begin{abstract}
+%TODO: The abstract goes here.
+%\end{abstract}
 
 % no keywords
 
@@ -348,15 +348,63 @@ TODO: The abstract goes here.
 
 \section{Introduction}
 % no \IEEEPARstart
-TODO: This demo file is intended to serve as a ``starter file''
-for IEEE conference papers produced under \LaTeX\ using
-IEEEtran.cls version 1.8b and later.
+%TODO: This demo file is intended to serve as a ``starter file''
+%for IEEE conference papers produced under \LaTeX\ using
+%IEEEtran.cls version 1.8b and later.
 % You must have at least 2 lines in the paragraph with the drop letter
 % (should never be an issue)
-I wish you the best of success.
+%I wish you the best of success.
+
+We will propose a design for two integrator stages in an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage. Section II describes the motivation behind this tuning while Section III provides an early design for the integrator stages.
 
 
 \section{System Modeling}
+
+To see how our integrators take part in the overall Oversampled ADC architecture, we will first model our integrators with a simple gain and integrator in the z-domain. To model the circuit more accurately, we added two noise sources, one in the input and one at the output. We first assume that the noise in the circuit is white from thermal noise; if the 1/f noise dominates we can modify our circuit to mitigate the issue.
+
+Fig. \ref{integrator-model} shows the system model of our integrator stage. The input noise source $N_{i1}$ for integrator $i$ is caused by the sampling phase $\Phi_1$ of the integrator. Since this sampled noise gets integrated over time, we model it as an addition to the signal at the input. On top of this, we model the noise associated by the amplifying phase $\Phi_2$ by an addition with $N_{i2}$ at the output of the integrator.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=2.5in]{img/integrator-model}
+\caption{Integrator model for stage $i$}
+\label{integrator-model}
+\end{figure}
+
+Using this model, we can derive the input-referred noise contribution for each of the noise sources. The whole system can be modeled as Fig. \ref{system-model}. Here, the second integrator gain is $A$. We have also modeled the quantizer and DAC as quantization noise $Q$.
+
+\begin{figure*}[!b]
+\centering
+\includegraphics[width=\textwidth]{img/system}
+\caption{Oversampled ADC system model}
+\label{system-model}
+\end{figure*}
+
+From the system model, we can derive how each input affects the output.
+\begin{multline}
+Y \left( 1 + \frac{A}{z-1} + \frac{A/2}{(z-1)^2}\right) = \\ N_{22} + Q + \frac{A}{z-1}(N_{21}+N_{12}) + \frac{A/2}{(z-1)^2}(N_{11}+X)
+\end{multline}
+
+The contribution of each input as seen in the output $Y$ can then be calculated.
+$$\frac{Y_X}{X} = \frac{Y_{N11}}{N_{11}} = \frac{A/2}{(z-1)^2+A(z-1)+A/2}$$
+$$\frac{Y_{N21}}{N_{21}} = \frac{Y_{N12}}{N_{12}} = \frac{A(z-1)}{(z-1)^2+A(z-1)+A/2}$$
+$$\frac{Y_{N22}}{N_{22}} = \frac{Y_Q}{Q} = \frac{(z-1)^2}{(z-1)^2+A(z-1)+A/2}$$
+
+If we divide each expression with the signal transfer function, we get the input-refered contribution of each noise source.
+$$N_{11}: 1$$
+$$N_{12} = N_{21}: 2(z-1)$$
+$$N_{22}: \frac{(z-1)^2}{A/2}$$
+
+Fig. \ref{noise-tf} shows the bode plot of these transfer functions in the signal frequencies. As expected, the second stage noise is suppressed more than the first stage and the $\Phi_2$ noise is suppressed more than the $\Phi_1$ noise due to the integrating function of the circuit. When we budget the noise of the circuits, we should take these into account. The first integrator needs to be carefully designed to have a much lower noise compared to the second integrator.
+
+The second-stage gain $A$ has negligible effects on the input-referred noise contribution, but the larger the gain the smaller the effect of $N_{22}$ and $Q$. In practice this parameter is limited by the signal swing of the circuit.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{input-referred-bode}
+\caption{Input-referred noise contributions}
+\label{noise-tf}
+\end{figure}
 
 
 \section{Integrator Implementation}
@@ -511,7 +559,7 @@ TODO: The conclusion goes here.
 \begin{thebibliography}{1}
 
 \bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
+TODO: H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
   0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
 
 \end{thebibliography}
