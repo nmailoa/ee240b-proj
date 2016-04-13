@@ -1,361 +1,27 @@
-
-%% bare_conf.tex
-%% V1.4b
-%% 2015/08/26
-%% by Michael Shell
-%% See:
-%% http://www.michaelshell.org/
-%% for current contact information.
-%%
-%% This is a skeleton file demonstrating the use of IEEEtran.cls
-%% (requires IEEEtran.cls version 1.8b or later) with an IEEE
-%% conference paper.
-%%
-%% Support sites:
-%% http://www.michaelshell.org/tex/ieeetran/
-%% http://www.ctan.org/pkg/ieeetran
-%% and
-%% http://www.ieee.org/
-
-%%*************************************************************************
-%% Legal Notice:
-%% This code is offered as-is without any warranty either expressed or
-%% implied; without even the implied warranty of MERCHANTABILITY or
-%% FITNESS FOR A PARTICULAR PURPOSE! 
-%% User assumes all risk.
-%% In no event shall the IEEE or any contributor to this code be liable for
-%% any damages or losses, including, but not limited to, incidental,
-%% consequential, or any other damages, resulting from the use or misuse
-%% of any information contained here.
-%%
-%% All comments are the opinions of their respective authors and are not
-%% necessarily endorsed by the IEEE.
-%%
-%% This work is distributed under the LaTeX Project Public License (LPPL)
-%% ( http://www.latex-project.org/ ) version 1.3, and may be freely used,
-%% distributed and modified. A copy of the LPPL, version 1.3, is included
-%% in the base LaTeX documentation of all distributions of LaTeX released
-%% 2003/12/01 or later.
-%% Retain all contribution notices and credits.
-%% ** Modified files should be clearly indicated as such, including  **
-%% ** renaming them and changing author support contact information. **
-%%*************************************************************************
-
-
-% *** Authors should verify (and, if needed, correct) their LaTeX system  ***
-% *** with the testflow diagnostic prior to trusting their LaTeX platform ***
-% *** with production work. The IEEE's font choices and paper sizes can   ***
-% *** trigger bugs that do not appear when using other class files.       ***                          ***
-% The testflow support page is at:
-% http://www.michaelshell.org/tex/testflow/
-
-
-
 \documentclass[conference]{IEEEtran}
-% Some Computer Society conferences also require the compsoc mode option,
-% but others use the standard conference format.
-%
-% If IEEEtran.cls has not been installed into the LaTeX system files,
-% manually specify the path to it like:
-% \documentclass[conference]{../sty/IEEEtran}
-
-
-
-
-
-% Some very useful LaTeX packages include:
-% (uncomment the ones you want to load)
-
-
-% *** MISC UTILITY PACKAGES ***
-%
-%\usepackage{ifpdf}
-% Heiko Oberdiek's ifpdf.sty is very useful if you need conditional
-% compilation based on whether the output is pdf or dvi.
-% usage:
-% \ifpdf
-%   % pdf code
-% \else
-%   % dvi code
-% \fi
-% The latest version of ifpdf.sty can be obtained from:
-% http://www.ctan.org/pkg/ifpdf
-% Also, note that IEEEtran.cls V1.7 and later provides a builtin
-% \ifCLASSINFOpdf conditional that works the same way.
-% When switching from latex to pdflatex and vice-versa, the compiler may
-% have to be run twice to clear warning/error messages.
-
-
-
-
-
-
-% *** CITATION PACKAGES ***
-%
-%\usepackage{cite}
-% cite.sty was written by Donald Arseneau
-% V1.6 and later of IEEEtran pre-defines the format of the cite.sty package
-% \cite{} output to follow that of the IEEE. Loading the cite package will
-% result in citation numbers being automatically sorted and properly
-% "compressed/ranged". e.g., [1], [9], [2], [7], [5], [6] without using
-% cite.sty will become [1], [2], [5]--[7], [9] using cite.sty. cite.sty's
-% \cite will automatically add leading space, if needed. Use cite.sty's
-% noadjust option (cite.sty V3.8 and later) if you want to turn this off
-% such as if a citation ever needs to be enclosed in parenthesis.
-% cite.sty is already installed on most LaTeX systems. Be sure and use
-% version 5.0 (2009-03-20) and later if using hyperref.sty.
-% The latest version can be obtained at:
-% http://www.ctan.org/pkg/cite
-% The documentation is contained in the cite.sty file itself.
-
-
-
-
-
-
-% *** GRAPHICS RELATED PACKAGES ***
-%
 \ifCLASSINFOpdf
    \usepackage[pdftex]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../pdf/}{../jpeg/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
 \else
-  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
-  % will default to the driver specified in the system graphics.cfg if no
-  % driver is specified.
-  % \usepackage[dvips]{graphicx}
-  % declare the path(s) where your graphic files are
-  % \graphicspath{{../eps/}}
-  % and their extensions so you won't have to specify these with
-  % every instance of \includegraphics
-  % \DeclareGraphicsExtensions{.eps}
 \fi
-% graphicx was written by David Carlisle and Sebastian Rahtz. It is
-% required if you want graphics, photos, etc. graphicx.sty is already
-% installed on most LaTeX systems. The latest version and documentation
-% can be obtained at: 
-% http://www.ctan.org/pkg/graphicx
-% Another good source of documentation is "Using Imported Graphics in
-% LaTeX2e" by Keith Reckdahl which can be found at:
-% http://www.ctan.org/pkg/epslatex
-%
-% latex, and pdflatex in dvi mode, support graphics in encapsulated
-% postscript (.eps) format. pdflatex in pdf mode supports graphics
-% in .pdf, .jpeg, .png and .mps (metapost) formats. Users should ensure
-% that all non-photo figures use a vector format (.eps, .pdf, .mps) and
-% not a bitmapped formats (.jpeg, .png). The IEEE frowns on bitmapped formats
-% which can result in "jaggedy"/blurry rendering of lines and letters as
-% well as large increases in file sizes.
-%
-% You can find documentation about the pdfTeX application at:
-% http://www.tug.org/applications/pdftex
-
-
-
-
-
-% *** MATH PACKAGES ***
-%
 \usepackage{amsmath}
-% A popular package from the American Mathematical Society that provides
-% many useful and powerful commands for dealing with mathematics.
-%
-% Note that the amsmath package sets \interdisplaylinepenalty to 10000
-% thus preventing page breaks from occurring within multiline equations. Use:
-%\interdisplaylinepenalty=2500
-% after loading amsmath to restore such page breaks as IEEEtran.cls normally
-% does. amsmath.sty is already installed on most LaTeX systems. The latest
-% version and documentation can be obtained at:
-% http://www.ctan.org/pkg/amsmath
-
-
-
-
-
-% *** SPECIALIZED LIST PACKAGES ***
-%
-%\usepackage{algorithmic}
-% algorithmic.sty was written by Peter Williams and Rogerio Brito.
-% This package provides an algorithmic environment fo describing algorithms.
-% You can use the algorithmic environment in-text or within a figure
-% environment to provide for a floating algorithm. Do NOT use the algorithm
-% floating environment provided by algorithm.sty (by the same authors) or
-% algorithm2e.sty (by Christophe Fiorio) as the IEEE does not use dedicated
-% algorithm float types and packages that provide these will not provide
-% correct IEEE style captions. The latest version and documentation of
-% algorithmic.sty can be obtained at:
-% http://www.ctan.org/pkg/algorithms
-% Also of interest may be the (relatively newer and more customizable)
-% algorithmicx.sty package by Szasz Janos:
-% http://www.ctan.org/pkg/algorithmicx
-
-
-
-
-% *** ALIGNMENT PACKAGES ***
-%
-%\usepackage{array}
-% Frank Mittelbach's and David Carlisle's array.sty patches and improves
-% the standard LaTeX2e array and tabular environments to provide better
-% appearance and additional user controls. As the default LaTeX2e table
-% generation code is lacking to the point of almost being broken with
-% respect to the quality of the end results, all users are strongly
-% advised to use an enhanced (at the very least that provided by array.sty)
-% set of table tools. array.sty is already installed on most systems. The
-% latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/array
-
-
-% IEEEtran contains the IEEEeqnarray family of commands that can be used to
-% generate multiline equations as well as matrices, tables, etc., of high
-% quality.
-
-
-
-
-% *** SUBFIGURE PACKAGES ***
-%\ifCLASSOPTIONcompsoc
-%  \usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
-%\else
-%  \usepackage[caption=false,font=footnotesize]{subfig}
-%\fi
-% subfig.sty, written by Steven Douglas Cochran, is the modern replacement
-% for subfigure.sty, the latter of which is no longer maintained and is
-% incompatible with some LaTeX packages including fixltx2e. However,
-% subfig.sty requires and automatically loads Axel Sommerfeldt's caption.sty
-% which will override IEEEtran.cls' handling of captions and this will result
-% in non-IEEE style figure/table captions. To prevent this problem, be sure
-% and invoke subfig.sty's "caption=false" package option (available since
-% subfig.sty version 1.3, 2005/06/28) as this is will preserve IEEEtran.cls
-% handling of captions.
-% Note that the Computer Society format requires a larger sans serif font
-% than the serif footnote size font used in traditional IEEE formatting
-% and thus the need to invoke different subfig.sty package options depending
-% on whether compsoc mode has been enabled.
-%
-% The latest version and documentation of subfig.sty can be obtained at:
-% http://www.ctan.org/pkg/subfig
-
-
-
-
-% *** FLOAT PACKAGES ***
-%
-%\usepackage{fixltx2e}
-% fixltx2e, the successor to the earlier fix2col.sty, was written by
-% Frank Mittelbach and David Carlisle. This package corrects a few problems
-% in the LaTeX2e kernel, the most notable of which is that in current
-% LaTeX2e releases, the ordering of single and double column floats is not
-% guaranteed to be preserved. Thus, an unpatched LaTeX2e can allow a
-% single column figure to be placed prior to an earlier double column
-% figure.
-% Be aware that LaTeX2e kernels dated 2015 and later have fixltx2e.sty's
-% corrections already built into the system in which case a warning will
-% be issued if an attempt is made to load fixltx2e.sty as it is no longer
-% needed.
-% The latest version and documentation can be found at:
-% http://www.ctan.org/pkg/fixltx2e
-
-
 \usepackage{stfloats}
-% stfloats.sty was written by Sigitas Tolusis. This package gives LaTeX2e
-% the ability to do double column floats at the bottom of the page as well
-% as the top. (e.g., "\begin{figure*}[!b]" is not normally possible in
-% LaTeX2e). It also provides a command:
-%\fnbelowfloat
-% to enable the placement of footnotes below bottom floats (the standard
-% LaTeX2e kernel puts them above bottom floats). This is an invasive package
-% which rewrites many portions of the LaTeX2e float routines. It may not work
-% with other packages that modify the LaTeX2e float routines. The latest
-% version and documentation can be obtained at:
-% http://www.ctan.org/pkg/stfloats
-% Do not use the stfloats baselinefloat ability as the IEEE does not allow
-% \baselineskip to stretch. Authors submitting work to the IEEE should note
-% that the IEEE rarely uses double column equations and that authors should try
-% to avoid such use. Do not be tempted to use the cuted.sty or midfloat.sty
-% packages (also by Sigitas Tolusis) as the IEEE does not format its papers in
-% such ways.
-% Do not attempt to use stfloats with fixltx2e as they are incompatible.
-% Instead, use Morten Hogholm'a dblfloatfix which combines the features
-% of both fixltx2e and stfloats:
-%
-% \usepackage{dblfloatfix}
-% The latest version can be found at:
-% http://www.ctan.org/pkg/dblfloatfix
-
-
-
-
-% *** PDF, URL AND HYPERLINK PACKAGES ***
-%
-%\usepackage{url}
-% url.sty was written by Donald Arseneau. It provides better support for
-% handling and breaking URLs. url.sty is already installed on most LaTeX
-% systems. The latest version and documentation can be obtained at:
-% http://www.ctan.org/pkg/url
-% Basically, \url{my_url_here}.
-
-
-
-
-% *** Do not adjust lengths that control margins, column widths, etc. ***
-% *** Do not use packages that alter fonts (such as pslatex).         ***
-% There should be no need to do such things with IEEEtran.cls V1.6 and later.
-% (Unless specifically asked to do so by the journal or conference you plan
-% to submit to, of course. )
-
-
-% correct bad hyphenation here
 \hyphenation{op-tical net-works semi-conduc-tor}
 
 
 \begin{document}
-%
-% paper title
-% Titles are generally capitalized except for words such as a, an, and, as,
-% at, but, by, for, in, nor, of, on, or, the, to and up, which are usually
-% not capitalized unless they are the first or last word of the title.
-% Linebreaks \\ can be used within to get better formatting as desired.
-% Do not put math or special symbols in the title.
 \title{Design of Oversampled ADC Integrators \\ \Large EE240B Project Milestone}
-
-
-% author names and affiliations
-% use a multiple column layout for up to three different
-% affiliations
 \author{\IEEEauthorblockN{Emily Naviasky}
 \IEEEauthorblockA{Department of EECS, UC Berkeley \\enaviasky@berkeley.edu}
 \and
 \IEEEauthorblockN{Nathaniel Mailoa}
 \IEEEauthorblockA{Department of EECS, UC Berkeley \\nmailoa@berkeley.edu}
 }
-
-% make the title area
 \maketitle
 
-% As a general rule, do not put math, special symbols or citations
-% in the abstract
-%\begin{abstract}
-%TODO: The abstract goes here.
-%\end{abstract}
-
-% no keywords
-
-
-
 \section{Introduction}
-% no \IEEEPARstart
-%TODO: This demo file is intended to serve as a ``starter file''
-%for IEEE conference papers produced under \LaTeX\ using
-%IEEEtran.cls version 1.8b and later.
-% You must have at least 2 lines in the paragraph with the drop letter
-% (should never be an issue)
-%I wish you the best of success.
 
 We will propose a design for two integrator stages in an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage. Section II describes the motivation behind this tuning while Section III provides an early design for the integrator stages.
+
 
 
 \section{System Modeling}
@@ -371,14 +37,15 @@ Fig. \ref{integrator-model} shows the system model of our integrator stage. The 
 \label{integrator-model}
 \end{figure}
 
-Using this model, we can derive the input-referred noise contribution for each of the noise sources. The whole system can be modeled as Fig. \ref{system-model}. Here, the second integrator gain is $A$. We have also modeled the quantizer and DAC as quantization noise $Q$.
-
 \begin{figure*}[!b]
 \centering
 \includegraphics[width=\textwidth]{img/system}
 \caption{Oversampled ADC system model}
 \label{system-model}
 \end{figure*}
+
+
+Using this model, we can derive the input-referred noise contribution for each of the noise sources. The whole system can be modeled as Fig. \ref{system-model}. Here, the second integrator gain is $A$. We have also modeled the quantizer and DAC as quantization noise $Q$.
 
 From the system model, we can derive how each input affects the output.
 \begin{multline}
@@ -395,10 +62,6 @@ $$N_{11}: 1$$
 $$N_{12} = N_{21}: 2(z-1)$$
 $$N_{22}: \frac{(z-1)^2}{A/2}$$
 
-Fig. \ref{noise-tf} shows the bode plot of these transfer functions in the signal frequencies. As expected, the second stage noise is suppressed more than the first stage and the $\Phi_2$ noise is suppressed more than the $\Phi_1$ noise due to the integrating function of the circuit. When we budget the noise of the circuits, we should take these into account. The first integrator needs to be carefully designed to have a much lower noise compared to the second integrator.
-
-The second-stage gain $A$ has negligible effects on the input-referred noise contribution, but the larger the gain the smaller the effect of $N_{22}$ and $Q$. In practice this parameter is limited by the signal swing of the circuit.
-
 \begin{figure}[h]
 \centering
 \includegraphics[width=\linewidth]{input-referred-bode}
@@ -406,34 +69,87 @@ The second-stage gain $A$ has negligible effects on the input-referred noise con
 \label{noise-tf}
 \end{figure}
 
+Fig. \ref{noise-tf} shows the bode plot of these transfer functions in the signal frequencies. As expected, the second integrating stage noise is suppressed more than the first stage and the $\Phi_2$ noise is suppressed more than the $\Phi_1$ noise due to the integrating function of the circuit. When we budget the noise of the circuits, we should take these into account. The first integrator needs to be carefully designed to have a much lower noise compared to the second integrator.
+
+To divide the noise budget, we use a first-order approximation. The $N_{12}$ and $N_{21}$ input-referred transfer function has a highest point at around $-30$dB, so the integrated noise power of these noise sources compared to that of $N_{11}$ is at the worst case $10^{30/10}=1000$ times smaller. Similarly, the noise power contribution of $N_{22}$ is $10^6$ times smaller than that of $N_{11}$.
+
+The second-stage gain $A$ has negligible effects on the input-referred noise contribution, but the larger the gain the smaller the effect of $N_{22}$ and $Q$. In practice this parameter is limited by the signal swing of the circuit.
+
 
 \section{Design}
+For this project the important specifications are:
 
-\subsection{Integrator}
+\begin{center}
+\begin{tabular}{|c|c|} 
+\hline
+Gain (Stage 1) & 0.5 \\
+\hline
+Input Referred Noise & $10\mu$ $V_{RMS}$ \\
+\hline
+Settling & 0.1\% in 1.8ns \\
+\hline
+Sampling Freq & 250M Hz \\
+\hline
+\end{tabular}
+\end{center}
 
-Specs
+We divided the settling error requirement evenly between static and dynamic error, so $\epsilon_d = 0.05\%$. Furthermore, we decided to budget noise based on the noise factor calculations from the previous section. We see that the noise $\phi_1$ is the most important contribution to the noise. $\phi_2$ will be divided by a factor of 1000, therefore budget nearly all of the noise requirements for noise from $N_{11}$. The spec is for differential noise, so calculating single ended, we need to hit $5\mu$ $V_{RMS}$. We divide that further up, so that there is $4\mu$ $V_{RMS}$ for one input of the first integrator, and $1\mu$ $V_{RMS}$ for one input of the second stage, taking advantage of the fact that the second integrator can be designed with much looser noise requirements.
 
-Eqns
+From these specifications, we see that the small noise and rapid settling time will require careful design to meet both simultaneously. We began by considering a basic switch cap integrator to get an idea of the what values were needed to meet $4\mu$ $V_{RMS}$ per input. We can use a design process similar to that of a sample and hold circuit, with only minor differences due to different switches.
 
-\subsection{OTA}
+PICTURE HERE OF BASIC SWITCH CAP
 
-Requirements
+The necessary equations are below. \newline
+Gain:
+$$\frac{V_{out}}{V_{in}}=\frac{C_S}{C_F}$$
+Settling Time:
+$$t_s = -\tau ln \left(\epsilon_d \left(1-\beta \frac{C_F}{C_F-C_L}\right)\right)$$
+Noise:
+$$\phi_1 = \frac{kT}{C_S + C_L}$$
+$$\phi_2 = \frac{\alpha}{\beta}\frac{kT}{C_{L,tot}}$$
+Where in these equations, beta is the feedback factor. $$\beta = \frac{C_F}{C_S + C_F + C_L}$$ 
+In addition, $C_{L,tot}$ is the effective capacitive load.$$C_{L,tot}=C_L+(1-\beta)C_F$$.
+And $\tau$ is the time constant of the system. $$\tau = \frac{C_{L,tot}}{(\beta*G_m)}$$
 
-OTA sims and sweeps
+We begin by choosing $C_S$ from the noise spec and the equation for $phi_1$. Then $C_F$ is easily obtained from the required gain. We want to meet $4\mu$ $V_{RMS}$ per input, but the BW that we care about noise is only 100-500kHz and our equation for $\phi_1$ is over the entire spectrum
+%IMPT VALS
+$$C_S = 100pF$$ 
+$$C_F = 200pF$$
+These are somewhat large capacitor values to drive. We next calculate the $G_m$ from the OTA necessary to meet the settling time with those capacitors.
+cap choice from noise and gain (overdesigned for infinte spectrum, for buffer room)
+need larger gm
+leads to next schematic
+ MOAR PICTURE
+More equations for first bout
+settling time stays same tau = cc/bgm1
+noise = a/b/ kt/CC (1+b a2/a1 CC/cltot )
+gm1
+gm2
+
+use noise to get CC
+iterate for stable gm2 and gm1 for settling time
+
+Sim to check specs
+Settling time meets
+AC stable
+Noise FUCKIT
 
 
 \section{Implementation}
 
-Look, here is a schematic
-schematic
+gm gonna suck, also, low output impedance sucks too
+need cascode or even gain-boosting
 
-\subsection{Integrator Simulations}
-Trans
-AC
-Noise
+RC time constant so suck
+need super good switch. gonna be enormous
 
-\subsection{Including Parasitics}
-already large gm, can't waste -> parasitic impedances -> cascode
+proposed schematic with all the bells and whistles
+
+use common mode rejection switch on input
+
+offset not a thing in simulation, but here is how we will add it to be through or something
+
+bottom plate sampling with early switches
 
 
 
@@ -601,5 +317,3 @@ TODO: H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
 
 % that's all folks
 \end{document}
-
-
