@@ -174,14 +174,16 @@ $C_F$ & 4pF \\
 \hline
 $G_M$ & 19mS \\
 \hline
-$R_o$ & 100k \\
+$R_{o,min}$ & 100k \\
 \hline
 \end{tabular}
 \end{center}
 
-In this stage, the most important design factor is meeting the noise requirement. This means that if noise is a problem later in the problem we can increase $C_S$ however, since we are very cleanly meeting the noise spec, we can trade some of it for lower $G_M$ in the gain stage. The large capacitors in the feedback loop relative to the load capacitance of the net stage, however, mean that the loop gain is large and we don't need quite as good of output resistance to correct for 
+In this stage, the most important design factor is meeting the noise requirement. This means that if noise is a problem later in the problem we can increase $C_S$ however, since we are very cleanly meeting the noise spec, we can trade some of it for lower $G_M$ in the gain stage. The large capacitors in the feedback loop relative to the load capacitance of the net stage, however, mean that the loop gain is large and we don't need quite as good of output resistance to keep static error within spec.
 
 \subsection{Second Stage}
+
+For second stage, we are meeting a noise spec which is 1000 times more lenient. Thus, we can choose much smaller feedback capacitance and $G_M$ of the OTA can be much more lenient. Using the same design procedure as before we obtain the values for the second integrator, also with a gain of $\frac{1}{2}$
 
 \begin{center}
 \begin{tabular}{|c|c|} 
@@ -192,10 +194,13 @@ $C_F$ & 15fF \\
 \hline
 $G_M$ & 5mS \\
 \hline
-$R_o$ & 1M \\
+$R_{o,min}$ & 1M \\
 \hline
 \end{tabular}
 \end{center}
+
+
+We did find, that because the feedback capacitors are not on the same order as the load cap, the static error is a much bigger concern, so we need to meet a larger output resistance of the OTA in order to keep the $g_m$ build-able with one stage.
 
 \begin{figure}[h]
 \centering
@@ -206,11 +211,21 @@ $R_o$ & 1M \\
 
 \section{Implementation}
 
-gm gonna suck, also, low output impedance sucks too
-need cascode or even gain-boosting
+\subsection{OTAs}
+The above simulations confirmed that we needed reasonably large $g_m$ OTAs, and that output resistance is more important for the second stage than the first stage.
 
-RC time constant so suck
-need super good switch. gonna be enormous
+For the first stage we want a diff pair with reasonably large output resistance. We propose the following:
+
+SCH OF DIFF PAIR WITH LAME RO
+
+$M_1$ and $M_2$ completely determine the $G_M$ of the OTA and will need to be sized accordingly. The large width of $M_1$ and $M_2$ necessitates using cascoding at least on the input caps, but careful sizing of $M_5$ and $M_6$ should meet the required output resistance of the first stage without having to use a full telescopic design which will limit the output swing a lot.
+
+For the second stage, however, we need better output resistance, in which case we need a telescopic differential pair, but we shouldn't need gain boosting.
+
+\subsection{Switches}
+The resistance of the switches is something of a concern in the first stage. In particular, the very first switch between the input and $C_S$, because $C_S$ is large and we need to make sure that it has time to charge sufficiently, and that the switch can drive over the large input range. Therefore, the first switch, at least, needs to be a reasonably wide transmission gate
+
+\subsection{Integrators}
 
 proposed schematic with all the bells and whistles
 
