@@ -243,18 +243,18 @@ $M_1$ and $M_2$ completely determine the $G_M$ of the OTA and will need to be si
 For the second stage, however, we need better output resistance, in which case we need a telescopic differential pair, but we shouldn't need gain boosting.
 
 \subsection{Switches}
-The resistance of the switches is something of a concern in the first stage. In particular, the very first switch between the input and $C_S$, because $C_S$ is large and we need to make sure that it has time to charge sufficiently, and that the switch can drive over the large input range. Therefore, the first switch, at least, needs to be a reasonably wide transmission gate
+The resistance of the switches is something of a concern in the first stage. In particular, the very first switch between the input and $C_S$, because $C_S$ is large and we need to make sure that it has time to charge sufficiently, and that the switch can drive over the large input range. Therefore, the first switch, at least, needs to be a reasonably wide transmission gate.
+
+The problem with large switches is that they have a lot of charge injection. To avoid that, we are making sure that we use early switches to disconnect the sampling cap and to implement bottom plate sampling.
 
 \subsection{Integrators}
+At the integrator level, we have been dealing only with the specs for this project. The project does not specify a CMRR or amount of variation that we have to be able to deal with in fabrication. However, these are things that have to be dealt with.
 
-proposed schematic with all the bells and whistles
+We propose the following integrator implementation to deal with problems outside of simulation:
 
-use common mode rejection switch on input
+FANCY BELLS AND WHISTLES SCH
 
-offset not a thing in simulation, but here is how we will add it to be through or something
-
-bottom plate sampling with early switches
-
+The switch between the inputs to the OTA is to improve the CMRR[2]. The extra switches and $C_OS$ in the loop are to deal with offset from fabrication mismatch[3]. 
 
 
 
