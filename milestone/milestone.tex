@@ -118,7 +118,7 @@ And $\tau$ is the time constant of the system. $$\tau = \frac{C_{L,tot}}{(\beta*
 
 \subsection{First Stage}
 
-We begin by choosing $C_S$ from the noise spec and the equation for $phi_1$. Then $C_F$ is easily obtained from the required gain. We want to meet $3\mu$ $V_{RMS}$ per input, but the BW that we care about noise is only 100-500kHz and our equation for $\phi_1$ is over the entire spectrum. Therefore, we need to divide by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The noise that we want at the input therefore is $N_{11}=9e-12 V/\sqrt{Hz}$.
+We begin by choosing $C_S$ from the noise spec and the equation for $phi_1$. Then $C_F$ is easily obtained from the required gain. We want to meet $3\mu$ $V_{RMS}$ per input, but the BW that we care about noise is only 100-500kHz and our equation for $\phi_1$ is over the entire spectrum[1]. Therefore, we need to divide by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The noise that we want at the input therefore is $N_{11}=9e-12 V/\sqrt{Hz}$.
 %IMPT VALS
 $$C_S = 2pF$$ 
 $$C_F = 4pF$$
@@ -254,7 +254,7 @@ We propose the integrator implementation in fig.\ref{integrator3} to deal with p
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.4\linewidth]{illustrator/integrator3}
+\includegraphics[width=0.8\linewidth]{illustrator/integrator3}
 \caption{Integrator stage with added features}
 \label{integrator3}
 \end{figure}
@@ -364,16 +364,6 @@ The switch between the inputs to the OTA is to improve the CMRR[2]. The extra sw
 % Note that, LaTeX2e, unlike IEEE journals/conferences, places
 % footnotes above bottom floats. This can be corrected via the
 % \fnbelowfloat command of the stfloats package.
-
-
-
-
-\section{Non-Simulation Considerations}
-
-
-
-\section{Conclusion}
-TODO: The conclusion goes here.
 
 
 
