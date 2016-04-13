@@ -250,9 +250,14 @@ The problem with large switches is that they have a lot of charge injection. To 
 \subsection{Integrators}
 At the integrator level, we have been dealing only with the specs for this project. The project does not specify a CMRR or amount of variation that we have to be able to deal with in fabrication. However, these are things that have to be dealt with.
 
-We propose the following integrator implementation to deal with problems outside of simulation:
+We propose the integrator implementation in fig.\ref{integrator3} to deal with problems outside of simulation.
 
-FANCY BELLS AND WHISTLES SCH
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\linewidth]{illustrator/integrator3}
+\caption{Integrator stage with added features}
+\label{integrator3}
+\end{figure}
 
 The switch between the inputs to the OTA is to improve the CMRR[2]. The extra switches and $C_OS$ in the loop are to deal with offset from fabrication mismatch[3]. 
 
