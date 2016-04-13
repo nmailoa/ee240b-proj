@@ -95,9 +95,14 @@ Sampling Freq & 250M Hz \\
 
 We divided the settling error requirement evenly between static and dynamic error, so $\epsilon_d = 0.05\%$. Furthermore, we decided to budget noise based on the noise factor calculations from the previous section. We see that the noise $\phi_1$ is the most important contribution to the noise. $\phi_2$ will be divided by a factor of 1000, therefore budget nearly all of the noise requirements for noise from $N_{11}$. The spec is for differential noise, so calculating single ended, we need to hit $5\mu$ $V_{RMS}$. We divide that further up, so that there is $3\mu$ $V_{RMS}$ for one input of the first integrator, and $1\mu$ $V_{RMS}$ for one input of the second stage and output of the second stage, taking advantage of the fact that the second integrator can be designed with much looser noise requirements.
 
-From these specifications, we see that the small noise and rapid settling time will require careful design to meet both simultaneously. We began by considering a basic switch cap integrator to get an idea of the what values were needed to meet $3\mu$ $V_{RMS}$ per input. We can use a design process similar to that of a sample and hold circuit, with only minor differences due to different switches.
+From these specifications, we see that the small noise and rapid settling time will require careful design to meet both simultaneously. We began by considering a basic switch cap integrator in fig. \ref{int1} to get an idea of the what values were needed to meet $3\mu$ $V_{RMS}$ per input. We can use a design process similar to that of a sample and hold circuit, with only minor differences due to different switches.
 
-PICTURE HERE OF BASIC SWITCH CAP
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\linewidth]{illustrator/integrator1}
+\caption{Basic switched capacitor gain stage}
+\label{int1}
+\end{figure}
 
 The necessary equations are below. \newline
 Gain:
@@ -119,19 +124,29 @@ $$C_S = 2pF$$
 $$C_F = 4pF$$
 These are somewhat large capacitor values to drive. We next calculate the $G_m$ of the OTA necessary to meet the settling time with those capacitors from $\tau$. We get $G_M = 9mS$, which is a little large, but should be doable with large width MOSFETs.
 We began adding parasitics to the transconductor. Parasitic capacitors are from $C_{GS}=\frac{g_m}{\omega_T}$ and we made a first optimistic guess at a conservative $r_o=10k$ and found that in simulation we needed significantly larger $G_M$.
-We decided that $G_M$ was getting a little large and decided to check a cascaded setup. We used ideal transconductors for the diff pairs.
+We decided that $G_M$ was getting a little large and decided to check a cascaded setup shown in fig. \ref{int2}. We used ideal transconductors for the diff pairs.
 
- MOAR PICTURE
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{illustrator/integrator2}
+\caption{Cascaded amplifiers with Miller compensation}
+\label{int2}
+\end{figure}
  
 The relevant equations for this part change only a little:
-settling time stays same tau = cc/bgm1
-noise = a/b/ kt/CC (1+b a2/a1 CC/cltot )
+$$\tau = \frac{C_C}{\beta g_{m1}}$$
+$$N_{\Phi 2} = \frac{\alpha_1}{\beta} \frac{kT}{C_C} \left( 1+\beta \frac{\alpha_2}{\alpha_1} \frac{C_C}{C_{Ltot}} \right)$$
 
 However, most of the equations for poles and zeros are very approximated, and they do not take into account that the cascaded pair are more stable when $g_{m1}$ is larger than $g_{m2}$. We also had to use a Miller capacitance for pole splitting.
 
-We had to iteratively find a stable value of $g_m$s that met timing, and eventually settled on $g_{m1}=$, $g_{m2}=$.
+We had to iteratively find a stable value of $g_m$s that met timing, and eventually settled on $g_{m1}=20mS$, $g_{m2}=4mS$.
 
-TWO STAGE TRANS?
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{img/cascaded-tran}
+\caption{Transient response of 2-stage amplifier with Miller compensation}
+\label{cascaded-tran}
+\end{figure}
 
 These value of $g_m$ are not significantly better than the single stage transconductor and the noise of a single stage is better, so we decided that a very large diff pair would be better than cascading.
 
@@ -139,7 +154,12 @@ We re-examined the parasitic resistance and decided that increasing the $r_o$ wa
 
 We ran a final transient sim to make sure that the settling time of the output of the first stage was 1.8ns to 1\%. 
 
-FIGURES
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{img/stage1-tran}
+\caption{Transient response of first integrator with single-stage amplifier}
+\label{stage1-tran}
+\end{figure}
 
 The noise simulation was a performed with a noise current source of $\frac{1}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we got the $V/\sqrt{Hz}$ noise density at the output of the integrator which we exported to Matlab, then multiplied by the transfer function from the output to the input, which is $N_{12}$ and then integrated over the BW.
 
@@ -176,6 +196,13 @@ $R_o$ & 1M \\
 \hline
 \end{tabular}
 \end{center}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{img/stage2-tran}
+\caption{Transient response of second integrator with single-stage amplifier}
+\label{stage2-tran}
+\end{figure}
 
 \section{Implementation}
 
