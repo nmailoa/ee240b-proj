@@ -93,9 +93,9 @@ Sampling Freq & 250M Hz \\
 \end{tabular}
 \end{center}
 
-We divided the settling error requirement evenly between static and dynamic error, so $\epsilon_d = 0.05\%$. Furthermore, we decided to budget noise based on the noise factor calculations from the previous section. We see that the noise $\phi_1$ is the most important contribution to the noise. $\phi_2$ will be divided by a factor of 1000, therefore budget nearly all of the noise requirements for noise from $N_{11}$. The spec is for differential noise, so calculating single ended, we need to hit $5\mu$ $V_{RMS}$. We divide that further up, so that there is $4\mu$ $V_{RMS}$ for one input of the first integrator, and $1\mu$ $V_{RMS}$ for one input of the second stage, taking advantage of the fact that the second integrator can be designed with much looser noise requirements.
+We divided the settling error requirement evenly between static and dynamic error, so $\epsilon_d = 0.05\%$. Furthermore, we decided to budget noise based on the noise factor calculations from the previous section. We see that the noise $\phi_1$ is the most important contribution to the noise. $\phi_2$ will be divided by a factor of 1000, therefore budget nearly all of the noise requirements for noise from $N_{11}$. The spec is for differential noise, so calculating single ended, we need to hit $5\mu$ $V_{RMS}$. We divide that further up, so that there is $3\mu$ $V_{RMS}$ for one input of the first integrator, and $1\mu$ $V_{RMS}$ for one input of the second stage and output of the second stage, taking advantage of the fact that the second integrator can be designed with much looser noise requirements.
 
-From these specifications, we see that the small noise and rapid settling time will require careful design to meet both simultaneously. We began by considering a basic switch cap integrator to get an idea of the what values were needed to meet $4\mu$ $V_{RMS}$ per input. We can use a design process similar to that of a sample and hold circuit, with only minor differences due to different switches.
+From these specifications, we see that the small noise and rapid settling time will require careful design to meet both simultaneously. We began by considering a basic switch cap integrator to get an idea of the what values were needed to meet $3\mu$ $V_{RMS}$ per input. We can use a design process similar to that of a sample and hold circuit, with only minor differences due to different switches.
 
 PICTURE HERE OF BASIC SWITCH CAP
 
@@ -111,29 +111,71 @@ Where in these equations, beta is the feedback factor. $$\beta = \frac{C_F}{C_S 
 In addition, $C_{L,tot}$ is the effective capacitive load.$$C_{L,tot}=C_L+(1-\beta)C_F$$.
 And $\tau$ is the time constant of the system. $$\tau = \frac{C_{L,tot}}{(\beta*G_m)}$$
 
-We begin by choosing $C_S$ from the noise spec and the equation for $phi_1$. Then $C_F$ is easily obtained from the required gain. We want to meet $4\mu$ $V_{RMS}$ per input, but the BW that we care about noise is only 100-500kHz and our equation for $\phi_1$ is over the entire spectrum
+\subsection{First Stage}
+
+We begin by choosing $C_S$ from the noise spec and the equation for $phi_1$. Then $C_F$ is easily obtained from the required gain. We want to meet $3\mu$ $V_{RMS}$ per input, but the BW that we care about noise is only 100-500kHz and our equation for $\phi_1$ is over the entire spectrum. Therefore, we need to divide by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The noise that we want at the input therefore is $N_{11}=9e-12 V/\sqrt{Hz}$.
 %IMPT VALS
-$$C_S = 100pF$$ 
-$$C_F = 200pF$$
-These are somewhat large capacitor values to drive. We next calculate the $G_m$ from the OTA necessary to meet the settling time with those capacitors.
-cap choice from noise and gain (overdesigned for infinte spectrum, for buffer room)
-need larger gm
-leads to next schematic
+$$C_S = 2pF$$ 
+$$C_F = 4pF$$
+These are somewhat large capacitor values to drive. We next calculate the $G_m$ of the OTA necessary to meet the settling time with those capacitors from $\tau$. We get $G_M = 9mS$, which is a little large, but should be doable with large width MOSFETs.
+We began adding parasitics to the transconductor. Parasitic capacitors are from $C_{GS}=\frac{g_m}{\omega_T}$ and we made a first optimistic guess at a conservative $r_o=10k$ and found that in simulation we needed significantly larger $G_M$.
+We decided that $G_M$ was getting a little large and decided to check a cascaded setup. We used ideal transconductors for the diff pairs.
+
  MOAR PICTURE
-More equations for first bout
+ 
+The relevant equations for this part change only a little:
 settling time stays same tau = cc/bgm1
 noise = a/b/ kt/CC (1+b a2/a1 CC/cltot )
-gm1
-gm2
 
-use noise to get CC
-iterate for stable gm2 and gm1 for settling time
+However, most of the equations for poles and zeros are very approximated, and they do not take into account that the cascaded pair are more stable when $g_{m1}$ is larger than $g_{m2}$. We also had to use a Miller capacitance for pole splitting.
 
-Sim to check specs
-Settling time meets
-AC stable
-Noise FUCKIT
+We had to iteratively find a stable value of $g_m$s that met timing, and eventually settled on $g_{m1}=$, $g_{m2}=$.
 
+TWO STAGE TRANS?
+
+These value of $g_m$ are not significantly better than the single stage transconductor and the noise of a single stage is better, so we decided that a very large diff pair would be better than cascading.
+
+We re-examined the parasitic resistance and decided that increasing the $r_o$ was the next best option, so that we needed the first stage OTA to be a single stage diff pair with cascoding, and approximated the new $r_o$ as a conservative $100k\Omega$.
+
+We ran a final transient sim to make sure that the settling time of the output of the first stage was 1.8ns to 1\%. 
+
+FIGURES
+
+The noise simulation was a performed with a noise current source of $\frac{1}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we got the $V/\sqrt{Hz}$ noise density at the output of the integrator which we exported to Matlab, then multiplied by the transfer function from the output to the input, which is $N_{12}$ and then integrated over the BW.
+
+We got a noise of $2.24\mu V_{rms}$ which gives us a lot of room to change the $C_s$ if we need it.
+
+\begin{center}
+\begin{tabular}{|c|c|} 
+\hline
+$C_S$ & 2pF \\
+\hline
+$C_F$ & 4pF \\
+\hline
+$G_M$ & 19mS \\
+\hline
+$R_o$ & 100k \\
+\hline
+\end{tabular}
+\end{center}
+
+In this stage, the most important design factor is meeting the noise requirement. This means that if noise is a problem later in the problem we can increase $C_S$ however, since we are very cleanly meeting the noise spec, we can trade some of it for lower $G_M$ in the gain stage. The large capacitors in the feedback loop relative to the load capacitance of the net stage, however, mean that the loop gain is large and we don't need quite as good of output resistance to correct for 
+
+\subsection{Second Stage}
+
+\begin{center}
+\begin{tabular}{|c|c|} 
+\hline
+$C_S$ & 30fF \\
+\hline
+$C_F$ & 15fF \\
+\hline
+$G_M$ & 5mS \\
+\hline
+$R_o$ & 1M \\
+\hline
+\end{tabular}
+\end{center}
 
 \section{Implementation}
 
