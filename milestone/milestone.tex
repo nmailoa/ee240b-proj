@@ -20,7 +20,7 @@
 
 \section{Introduction}
 
-We will propose a design for two integrator stages in an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage. Section II describes the motivation behind this tuning while Section III provides an early design for the integrator stages.
+We will propose a design for two integrator stages in an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage. Section I describes the motivation behind this tuning and Section II provides the choice of architecture and the variables to fulfill the requirements while Section II provides an early design for the amplifier stages.
 
 
 
@@ -161,7 +161,14 @@ We ran a final transient sim to make sure that the settling time of the output o
 \label{stage1-tran}
 \end{figure}
 
-The noise simulation was a performed with a noise current source of $\frac{1}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we got the $V/\sqrt{Hz}$ noise density at the output of the integrator which we exported to Matlab, then multiplied by the transfer function from the output to the input, which is $N_{12}$ and then integrated over the BW.
+The noise simulation was a performed with a noise current source of $\frac{2}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we got the $V/\sqrt{Hz}$ noise density at the output of the integrator which we exported to Matlab, then multiplied by the transfer function from the output to the input, which is $N_{12}$ and then integrated over the BW.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{img/noise-stage1}
+\caption{Input-referred noise density from the first integrator stage}
+\label{noise-stage1}
+\end{figure}
 
 We got a noise of $2.24\mu V_{rms}$ which gives us a lot of room to change the $C_s$ if we need it.
 
@@ -209,14 +216,27 @@ We did find, that because the feedback capacitors are not on the same order as t
 \label{stage2-tran}
 \end{figure}
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{img/noise-stage2}
+\caption{Input-referred noise density from the second integrator stage}
+\label{noise-stage2}
+\end{figure}
+
+
 \section{Implementation}
 
 \subsection{OTAs}
 The above simulations confirmed that we needed reasonably large $g_m$ OTAs, and that output resistance is more important for the second stage than the first stage.
 
-For the first stage we want a diff pair with reasonably large output resistance. We propose the following:
+For the first stage we want a differential pair with reasonably large output resistance. We propose the circuit in fig. \ref{cascoded-diffpair}.
 
-SCH OF DIFF PAIR WITH LAME RO
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.4\linewidth]{illustrator/cascoded-diffpair}
+\caption{Cascoded fully-differential pair}
+\label{cascoded-diffpair}
+\end{figure}
 
 $M_1$ and $M_2$ completely determine the $G_M$ of the OTA and will need to be sized accordingly. The large width of $M_1$ and $M_2$ necessitates using cascoding at least on the input caps, but careful sizing of $M_5$ and $M_6$ should meet the required output resistance of the first stage without having to use a full telescopic design which will limit the output swing a lot.
 
