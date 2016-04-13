@@ -246,17 +246,18 @@ The resistance of the switches is somewhat of a concern, especially for the samp
 
 The problem with large switches is that they have a lot of charge injection. To avoid that, we are making sure that we use early switches to disconnect the sampling cap and to implement bottom plate sampling.
 
-\subsection{Integrators}
-At the integrator level, we have been dealing only with the specs for this project. The project does not specify a CMRR or amount of variation that we have to be able to deal with in fabrication. However, these are things that have to be dealt with.
-
-We propose the integrator implementation in fig.\ref{integrator3} to deal with problems outside of simulation.
-
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.8\linewidth]{illustrator/integrator3}
 \caption{Integrator stage with added features}
 \label{integrator3}
 \end{figure}
+
+
+\subsection{Integrators}
+At the integrator level, we have been dealing only with the specs for this project. The project does not specify a CMRR or amount of variation that we have to be able to deal with in fabrication. However, these are things that have to be dealt with.
+
+We propose the integrator implementation in fig.\ref{integrator3} to deal with problems outside of simulation.
 
 The switch between the inputs to the OTA marked with the red box is to improve the CMRR by canceling the common mode offset [2]. The effect of OTA offset from fabrication mismatch is negligible because Delta-Sigma modulators are relatively insensitive to offset [3].
 
