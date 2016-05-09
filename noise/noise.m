@@ -1,6 +1,6 @@
 % stage 1
 
-data = csvread('proj-noise-realboost-400.csv');
+data = csvread('proj-noise-final-400-15.csv');
 
 freqs = data(:,1);
 Ts = 1/250e6;

@@ -26,13 +26,186 @@ We will propose a design for the integrator stages of an oversampled ADC. The de
 
 \section{Integrator Implementation}
 
+Each integrator stage of the oversampled ADC has a gain of 0.5 and has to settle within 0.1\% in 1.8ns wih a +/- 1V differential input. Fig. \ref{fig:int} shows the implementation of the integrator stages.
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{illus/integrator}
+\caption{Switched capacitor integrator}
+\label{fig:int}
+\end{figure}
+
+During $\Phi_1$, $C_S$ samples the input and during $\Phi_2$ the input is amplified through charge transfer between $C_S$ and $C_F$. The $\Phi_2$ switch connecting the two sampling capacitors is a common mode rejection mechanism, transferring only the differential charge to $C_F$. $C_F$ is connected in the feedback only during the amplification phase $\Phi_2$ and is never reset, thus it integrates the input over time. $C_L$ is the load capacitance; for the first stage this is the the sampling capacitor of the second stage, and for the second stage this is the input capacitance of the comparator.
+
+Since the amplifiers form a second-order integrator, the first amplifier noise dominates the total noise. From the in-band noise and gain specifications (see Project Milestone), we found that the minimum sampling capacitor $C_S$ is 1.5pF and the feedback capacitor $C_F$ is 3pF for the first stage. 
+
+Since the settling requirement is 0.1\%, we budget 0.05\% to static error. The static error defines the loop gain $T = \frac{1}{\epsilon_s} = 2000$. Since the feedback factor $\beta$ is fixed by the gain of the integrator, this sets the open loop gain of the OTA to be $3000$.
 
 \section{Design Alternatives}
 
+We started with a telescopic OTA with an NMOS input but quickly realized that the $V_{GS}$ of the input device is too large to get the V* we want since the input common mode of the OTA is $600mV$. To achieve high current efficiencies (low V*) the gate-source voltage of the device has to be close to the threshold voltage. We found that a $V_{GS}$ of 0.4V is required to achieve a V* of $0.14V$. Such a low V* is ideal in our situation since larger current requires larger devices, which reduces the $r_o$ of the devices.
+
+Next we moved to a folded cascode OTA architecture. With a folded cascode, the $V_{GS}$ of the input device can be almost arbitrarily set by the tail current. Setting the $V_{GS}$ to $0.4V$ provides us with the V* we desired. 
+
+The transconductance $g_m$ we needed is limited by the dynamic settling time. Using the dynamic settling equation with a pole and a zero, we found that the $g_m$ required for the OTA is $\_21mS\_$. With a V* of $0.14V$, the drain current is $\_1.5mA\_$.
+
+We set the current of the cascode branch to be greater than the current flowing through the input devices so the cascode devices never has zero current flowing through them even during slewing. This is important since the slew rate is now only dependent on the first stage current.
+
+To avoid slewing for extended periods of time, the current in the input device has to be large enough to charge the load capacitance. Since when the closed loop amplifier is subjected to a step input there is a capacitive divider effect from the input to the output node, the output has to slew more than the maximum single-ended output swing of $0.25V$. Designing for a $0.5V$ slew in 0.4ns, with a total load capacitance of $C_{Ltot} = C_L + (1-\beta)C_F = \_1.1pF\_$, the current needed in the input devices is $1.5mA$. Since the required $g_m$ of the OTA already enforces this drain current, we do not need to worry about slewing.
+
+After attempting to build the OTA, we discovered that getting the output resistance to be high is very hard with the current architecture. The required open loop gain is $3000$, and with a $g_m$ of $\_21mS\_$ the required output resistance is $\_143k\Omega\_$. With the bias currents in the design, this output resistance is unachievable.
+
+To realize the high output resistances, we added gain boosters to the folded cascode OTA. The gain booster requirements are derived from the current output resistance and the bandwidth of the OTA. Fig. \ref{fig:main-ota} shows the gain-boosted folded cascode OTA circuit. based on the output resistance looking up from the output node $R_{out, up} = g_{m7}r_{o7}(r_{o5}||r_{o3}||r_{o1})$, the PMOS gain booster require an open loop gain of $36dB$. On top of that, the unity gain of the gain booster has to be larger than the 3dB bandwidth of the closed loop amplifier; we set the unity gain bandwidth to \_\_.
+
+The output resistance looking down from the output node is $R_{out, down} = g_{m9}r_{o9}r_{o11}$. This is relatively high compared to $R_{out, up}$, but is still not high enough to meet the total output resistance of $\_143k\Omega\_$. We also added a gain booster with an open loop gain of \_\_ and a unity gain bandwidth of \_\_.
+
+To build these gain boosters, we attempted to use a common differential pair, but the input voltage bias and the output voltage bias are not ideal for such an architecture. For example, the PMOS gain boosters have an input voltage of $1V$ and an output voltage of $0.4V$. Using an NMOS input device would result in too much $V_{GS}$, hence too high V*. Just like the main OTA, we solved this problem by implementing a folded cascode.
+
+gain booster design here
 
 
 \section{Circuit Implementation}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{illus/main_ota}
+\caption{Gain-boosted folded cascode OTA with CMFB}
+\label{fig:main-ota}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|} 
+\hline
+Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+\hline
+\multicolumn{7}{|c|}{Differential pair} \\
+\hline
+M0 &	 42.1 & 90 & 0.22 & 3.63 & 33 & 94.7 \\
+\hline
+M1/2 &  15.9 & 60 & 0.20 & 1.81 & 18.4 & 224 \\
+\hline
+M3/4 & 154.8 & 100 & 0.19 & 1.81 & 19 & 13.4 \\
+\hline
+\multicolumn{7}{|c|}{Output branch} \\
+\hline
+M5/6 & 172.98 & 80 & 0.15 & 1.8 & 23.5 & 20.2 \\
+\hline
+M7/8 & 79.38 & 100 & 0.25 & 17.7 & 14.3 & 18.3 \\
+\hline
+M9/10 & 71.35 & 300 & 0.19 & 17.7 & 18.8 & 97.2 \\
+\hline
+M11/12 & 88.56 & 200 & 0.15 & 17.7 & 23.3 & 17.2 \\
+\hline
+\multicolumn{7}{|c|}{CMFB} \\
+\hline
+MC1/2 & 15.13 & 60 & 0.7 & 1.81 & 5.1 & 57.3 \\
+\hline
+MC3 & 12.61 & 60 & 0.6 & 1.52 & 5.1 & 68.7 \\
+\hline
+MC4 & 14.5 & 90 & 0.22 & 1.52 & 13.7 & 112 \\
+\hline
+MC5 & 195.3 & 140 & 0.14 & 1.52 & 21.4 & 5.02 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{illus/pmos_boost}
+\caption{PMOS Gain Booster}
+\label{fig:pmos_boost}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|} 
+\hline
+Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+\hline
+\multicolumn{7}{|c|}{Differential pair} \\
+\hline
+M0 &	 16.4 & 90 & 0.29 & 2 & 13.9 & 122.7 \\
+\hline
+M1/2 &  14 & 90 & 0.14 & 1 & 14.2 & 78 \\
+\hline
+\multicolumn{7}{|c|}{Output branch} \\
+\hline
+M3/4 & 11.6 & 90 & 0.3 & 1.5 & 10.1 & 26.4 \\
+\hline
+M5/6 & 2.6 & 90 & 0.4 & 0.5 & 2.53 & 108 \\
+\hline
+M7/8 & 4 & 100 & 0.28 & 0.5 & 3.5 & 89 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{illus/nmos_boost}
+\caption{NMOS Gain Booster}
+\label{fig:nmos_boost}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|} 
+\hline
+Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+\hline
+\multicolumn{7}{|c|}{Differential pair} \\
+\hline
+M0 &	 198.4 & 200 & 0.27 & 2.2 & 16 & 3.98 \\
+\hline
+M1/2 &  77.5 & 60 & 0.13 & 1.1 & 16.3 & 43 \\
+\hline
+\multicolumn{7}{|c|}{Output branch} \\
+\hline
+M3/4 & 68.5 & 150 & 0.28 & 1.1 & 7.95 & 7.6 \\
+\hline
+M5/6 & 49.7 & 100 & 0.13 & 1.1 & 17.3 & 58 \\
+\hline
+M7/8 & 7.13 & 60 & 0.44 & 2.2 & 10.1 & 237 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\linewidth]{illus/bias}
+\caption{Biasing Network}
+\label{fig:bias}
+\end{figure}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|} 
+\hline
+Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+\hline
+MB1 & 5.89 & 80 & 0.19 & 0.5 & 5.27 & 128 \\
+\hline
+MB2 & 7.18 & 80 & 0.18 & 0.5 & 5.6 & 115 \\
+\hline
+MB3 & 5.27 & 80 & 0.18 & 0.5 & 5.6 & 115\\
+\hline
+MB4 & 4.99 & 80 & 0.18 & 0.5 & 5.6 & 115\\
+\hline
+MB5 & 5.56 & 80 & 0.18 & 0.5 & 5.6 & 115\\
+\hline
+MB6 & 2.69 & 300 & 0.65 & 0.5 & 1.54 & 17.5 \\
+\hline
+MB7 & 2.6 & 140 & 0.83 & 0.5 & 1.2 & 88.9 \\
+\hline
+MB8 & 34 & 140 & 0.18 & 0.5 & 5.6 & 6.5 \\
+\hline
+MB9 & 142.59 & 140 & 0.12 & 0.5 & 8.6 & 3.82 \\
+\hline
+MB10 & 13.7 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
+\hline
+MB11 & 14.5 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
+\hline
+\end{tabular}
+\end{center}
 
 
 
@@ -58,6 +231,7 @@ Total Power & ?? mW \\
 \end{tabular}
 \end{center}
 
+1st stage noise 8.86uV
 
 
 \section{Design Critique}
@@ -403,7 +577,11 @@ The switch between the inputs to the OTA marked with the red box is to improve t
 % <OR> manually copy in the resultant .bbl file
 % set second argument of \begin to the number of references
 % (used to reserve space for the reference number labels box)
+
+
 \begin{thebibliography}{1}
+
+\begin{comment}
 
 \bibitem{}
 R. Schreier, \emph{Design-Oriented Estimation of Thermal Noise in Switched-Capacitor Circuits},  IEEE Transactions on Circuits and Systems—I: Regular Papers, vol.52, no.11, 2005.
@@ -411,12 +589,12 @@ R. Schreier, \emph{Design-Oriented Estimation of Thermal Noise in Switched-Capac
 \bibitem{}
 S. Lewis, P. Gray. \emph{A Pipelined 5-Msample/s 9-bit Analog-to-Digital Converter}, IEEE Journal of Solid-State Circuits, vol.sc-22 ,no.6, 1987.
 
+\end{comment}
+
 \bibitem{}
 B. Bernhard, \emph{The Design of Sigma-Delta Modulation Analog-to-Digita1 Converters}, IEEE Journal of Solid-State Circuits, vol.23 ,no.6, 1988.
+
 \end{thebibliography}
-
-
-
 
 % that's all folks
 \end{document}
