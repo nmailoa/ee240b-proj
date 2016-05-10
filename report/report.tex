@@ -36,7 +36,7 @@ Each integrator stage of the oversampled ADC has a gain of 0.5 and has to settle
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.75\linewidth]{illus/integrator}
+\includegraphics[width=0.7\linewidth]{illus/integrator}
 \caption{Switched capacitor integrator}
 \label{fig:int}
 \end{figure}
@@ -106,21 +106,21 @@ Device & W ($\mu$) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
 \hline
 \multicolumn{7}{|c|}{Differential pair} \\
 \hline
-M0 &	 42.1 & 90 & 0.22 & 3.63 & 33 & 94.7 \\
+M0 &	 42.1 & 90 & 0.205 & 3.38 & 32.9 & 95.8 \\
 \hline
-M1/2 &  15.9 & 60 & 0.20 & 1.81 & 18.4 & 224 \\
+M1/2 &  15.9 & 60 & 0.19 & 1.69 & 17.8 & 220 \\
 \hline
-M3/4 & 154.8 & 100 & 0.19 & 1.81 & 19 & 13.4 \\
+M3/4 & 154.8 & 100 & 0.17 & 1.75 & 18.2 & 12.9 \\
 \hline
 \multicolumn{7}{|c|}{Output branch} \\
 \hline
-M5/6 & 172.98 & 80 & 0.15 & 1.8 & 23.5 & 20.2 \\
+M5/6 & 172.98 & 80 & 0.15 & 1.73 & 22.7 & 19.6 \\
 \hline
-M7/8 & 79.38 & 100 & 0.25 & 1.77 & 14.3 & 18.3 \\
+M7/8 & 79.38 & 100 & 0.25 & 1.8 & 14.6 & 18.7 \\
 \hline
-M9/10 & 71.35 & 300 & 0.19 & 1.77 & 18.8 & 97.2 \\
+M9/10 & 71.35 & 300 & 0.19 & 1.8 & 18.8 & 9.6 \\
 \hline
-M11/12 & 88.56 & 200 & 0.15 & 1.45 & 23.3 & 17.2 \\ %Pm77
+M11/12 & 88.56 & 200 & 0.15 & 1.8 & 23.8 & 17.5 \\ %Pm77
 \hline
 \multicolumn{7}{|c|}{CMFB} \\
 \hline
@@ -234,13 +234,16 @@ MB11 & 14.5 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
 \end{center}
 
 
+As mentioned before, the device sizings for the second stage is scaled by a factor. The differential input of the OTA is sized by a factor of 0.22 while the output branch of the OTA is sized by a factor of 0.3. Every other sizing is the same and the two stages share the same bias network.
+
+
 \section{Design Verification}
 
 The spec specified that the OTA would be used in a delta-sigma ADC with a +/-1V differential square wave from the D/A. Therefore, we assumed that the settling time needed to be met, at worst, for a 1V differential input signal. So with a gain of .5, the output needed to settle to .5V differential in 1.8ns. This is how we determined that our settling and dynamic error met spec in fig. \ref{fig:st1_error}.
 
 Running transient on a 1V step after enough time for the common mode feedback was the ultimate verification of our design, but stability analysis was the first check of our design to make sure that the transient would be stable and the settling time would meet. Stability sims were run on the gain boosters, the common mode feedback loop, and the OTA constant time integrator loop of both stages.
 
-Stability analysis in figs. \ref{fig:st1_diff_ac} and \ref{fig:st2_diff_ac} shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The AC response of the gain boosters are shown in fig. \ref{fig:}. The common mode feedback loop is included in figs. \ref{fig:st1_cm_ac} and \ref{fig:st2_cm_ac} as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.
+Stability analysis in figs. \ref{fig:st1_diff_ac} and \ref{fig:st2_diff_ac} shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The AC response of the gain boosters are shown in figs. \ref{fig:gbp_ac} and \ref{fig:gbn_ac}. The common mode feedback loop is included in figs. \ref{fig:st1_cm_ac} and \ref{fig:st2_cm_ac} as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.
 
 
 
@@ -255,7 +258,7 @@ Finally, to determine that the noise spec was met, we ran noise sims over 1600 s
 \begin{center}
 \begin{tabular}{|c|c|} 
 \hline
-Gain & 0.5 \\
+Gain per stage & 0.5 \\
 \hline
 Input Referred Noise & 9.18 $\mu$ $V_{RMS}$ \\
 \hline
@@ -263,17 +266,32 @@ Settling & 0.1\% in 1.27 ns \\
 \hline
 Sampling Freq & 250MHz \\
 \hline
-Total Power & 43.056 mW \\
+Total Power & 40.96 mW \\
 \hline
 \end{tabular}
 \end{center}
 
-1st stage noise 8.86uV
-2nd stage noise 0.31950uV
-19.09 mA 1st stage
-13.79 mA 2nd stage
-3mA biasing
-35.88 mA totall
+
+\begin{center}
+\begin{tabular}{|c|c|c|} 
+\hline
+ & Stage 1 & Stage 2 \\
+\hline
+$C_S$ & 1.5pF & 100fF \\
+\hline
+$C_F$ & 3pF & 200fF \\
+\hline
+Differential input $I_D$ & 1.69mA & 0.732mA\\
+\hline
+Output branch $I_D$ & 1.8mA & 0.55mA\\
+\hline
+Power consumption & 22.68mW & 14.68mW \\
+\hline
+Input Referred Noise & 8.86 $\mu$$V_{RMS}$ & 0.3195 $\mu$$V_{RMS}$\\
+\hline
+\end{tabular}
+\end{center}
+
 
 \section{Design Critique}
 
@@ -304,6 +322,7 @@ Our design did not do anything to correct for offset, which might be a concern b
 
 
 
+
 \begin{figure*}[H]
 \centering
 \includegraphics[height=250px]{piktures/st2_diff_ac}
@@ -316,6 +335,21 @@ Our design did not do anything to correct for offset, which might be a concern b
 \includegraphics[height=250px]{piktures/st2_cm_ac}
 \caption{Stability Analysis simulation of the common mode feedback loop for the first stage}
 \label{fig:st2_cm_ac}
+\end{figure*}
+
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/gbp_ac}
+\caption{AC response of PMOS gain boosters}
+\label{fig:gbp_ac}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/gbn_ac}
+\caption{AC response of PMOS gain boosters}
+\label{fig:gbn_ac}
 \end{figure*}
 
 
