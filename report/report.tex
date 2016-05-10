@@ -24,6 +24,12 @@
 We will propose a design for the integrator stages of an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage.
 
 
+\section{System-level Considerations}
+
+We started the design by modeling the ADC as transfer functions. We noticed that since the circuit implements an integration, the first stage should be a lot more carefully designed than the second stage. The input-referred noise transfer function from the output of the first stage is $N_1 = 2(z-1)$ while the second stage has a contribution that is affected by $N_2 = 0.25(z-1)^2$, assuming a second stage gain of 0.5. These transfer functions are also used later to verify the input-referred electronic noise of the circuit.
+
+We estimated that the noise power contribution of the second stage is approximately 1000 times smaller than the first stage. We also noted that if we split the noise of a stage to each phases' noises ($\Phi_1$ and $\Phi_2$), the noise from $\Phi_1$ is integrated along with the signal and is more important than the $\Phi_2$ noise. 
+
 \section{Integrator Implementation}
 
 Each integrator stage of the oversampled ADC has a gain of 0.5 and has to settle within 0.1\% in 1.8ns wih a +/- 1V differential input. Fig. \ref{fig:int} shows the implementation of the integrator stages.
@@ -37,9 +43,31 @@ Each integrator stage of the oversampled ADC has a gain of 0.5 and has to settle
 
 During $\Phi_1$, $C_S$ samples the input and during $\Phi_2$ the input is amplified through charge transfer between $C_S$ and $C_F$. The $\Phi_2$ switch connecting the two sampling capacitors is a common mode rejection mechanism, transferring only the differential charge to $C_F$. $C_F$ is connected in the feedback only during the amplification phase $\Phi_2$ and is never reset, thus it integrates the input over time. $C_L$ is the load capacitance; for the first stage this is the the sampling capacitor of the second stage, and for the second stage this is the input capacitance of the comparator.
 
-Since the amplifiers form a second-order integrator, the first amplifier noise dominates the total noise. From the in-band noise and gain specifications (see Project Milestone), we found that the minimum sampling capacitor $C_S$ is 1.5pF and the feedback capacitor $C_F$ is 3pF for the first stage. 
+Since the amplifiers form a second-order integrator, the first amplifier noise dominates the total noise. We begin by choosing $C_S$ from the noise specification and the equation for noise at $\Phi_1$. 
 
-Since the settling requirement is 0.1\%, we budget 0.05\% to static error. The static error defines the loop gain $T = \frac{1}{\epsilon_s} = 2000$. Since the feedback factor $\beta$ is fixed by the gain of the integrator, this sets the open loop gain of the OTA to be $3000$.
+$$N_{\Phi 1} = \frac{kT}{C_S + C_L}$$
+$$N_{\Phi 2} = \frac{\alpha}{\beta}\frac{kT}{C_{L,tot}}$$
+
+The value of $C_F$ is easily obtained from the required gain since the gain of the integrator is $C_F/C_S$. We want to budget $3.5 \mu$$V_{RMS}$ to the noise at $\Phi_1$ per differential input, but the signal bandwidth that we care about is only 100-500kHz and our equation for $N_{\phi 1}$ is over the entire spectrum. Therefore, we need to multiply the noise specification by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The noise that we want at the input therefore is $N_{\Phi 1}=250 \cdot (3.5)^2 \cdot 10^{-12} V/\sqrt{Hz}$. We rounded the capacitor values up to get some headroom for error.
+
+%IMPT VALS
+$$C_S = 1.5pF$$ 
+$$C_F = 3pF$$
+
+Our load capacitor is the sampling capacitor of stage 2. We first started at 100fF and iterated the design process to size the load capacitor $C_L$.
+
+We next calculate the $G_m$ of the OTA necessary to meet the settling time with those capacitors from the settling time requirement. The equation below expresses the dynamic settling error specification assuming an amplifier with a closed loop pole at $\tau$ and a zero.
+
+$$t_s = -\tau ln \left(\epsilon_d \left(1-\beta \frac{C_F}{C_F-C_L}\right)\right)$$
+
+We budget half of the error to static error, so $\epsilon_d = 0.0005$. This results in a required transconductance of $G_m = 10.5mS$.
+
+Next we calculated the required open loop gain of the amplifier. Since we are budgeting half of the settling error to static error, we require that
+$$\frac{1}{T} = \frac{1}{\beta A} = \epsilon_s = 0.0005$$
+
+With a $\beta$ of 0.67, the required open loop gain is 3000, or 70 dB. This results in a required output resistance of $300k\Omega$.
+
+With the design parameters, we started by building an ideal OTA using a VCCS. We created a testbench for AC, noise, and transient analysis and ran simulations to make sure the settling time, and noise requirements are met. The noise simulation was a performed with a noise current source from a resistor of value $\frac{\alpha}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we exported the noise density at the output of the integrator to Matlab, then multiplied by the input-refered transfer function from the noise source and then integrated over the signal bandwidth.
 
 \section{Design Alternatives}
 
