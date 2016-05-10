@@ -238,7 +238,7 @@ The spec specified that the OTA would be used in a delta-sigma ADC with a +/-1V 
 
 Running transient on a 1V step after enough time for the common mode feedback was the ultimate verification of our design, but stability analysis was the first check of our design to make sure that the transient would be stable and the settling time would meet. Stability sims were run on the gain boosters, the common mode feedback loop, and the OTA constant time integrator loop of both stages.
 
-Stability analysis in figs. \ref{fig:st1_diff_ac}, \ref{fig:st1_cm_ac}, \ref{fig:st2_diff_ac} and \ref{fig:st2_cm_ac} shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The common mode feedback loop is included as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.
+Stability analysis in figs. \ref{fig:st1_diff_ac} and \ref{fig:st2_diff_ac} shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The AC response of the gain boosters are shown in fig. \ref{fig:}. The common mode feedback loop is included in figs. \ref{fig:st1_cm_ac} and \ref{fig:st2_cm_ac} as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.
 
 
 
@@ -296,9 +296,12 @@ Our design did not do anything to correct for offset, which might be a concern b
 \begin{figure*}[H]
 \centering
 \includegraphics[height=250px]{piktures/st1_cm_ac}
-\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\caption{Stability Analysis simulation of the common mode feedback loop for the first stage}
 \label{fig:st1_cm_ac}
 \end{figure*}
+
+
+
 
 \begin{figure*}[H]
 \centering
@@ -310,7 +313,7 @@ Our design did not do anything to correct for offset, which might be a concern b
 \begin{figure*}[H]
 \centering
 \includegraphics[height=250px]{piktures/st2_cm_ac}
-\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\caption{Stability Analysis simulation of the common mode feedback loop for the first stage}
 \label{fig:st2_cm_ac}
 \end{figure*}
 
@@ -351,6 +354,15 @@ Our design did not do anything to correct for offset, which might be a concern b
 \caption{Transient response of first integrator for a 1V input showing slewing}
 \label{fig:st1_slew}
 \end{figure*}
+
+
+
+
+
+
+
+
+
 
 
 
