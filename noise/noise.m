@@ -20,7 +20,7 @@ int = sqrt(trapz(freqs(2:end)-freqs(1:end-1), (input_referred(1:end-1)).^2))
 
 % stage 2
 
-data = csvread('proj-noise-realboost-400.csv');
+data = csvread('proj-noise-final2-400-15.csv');
 
 freqs = data(:,1);
 Ts = 1/250e6;
