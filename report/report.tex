@@ -21,14 +21,13 @@
 
 \section{Introduction}
 
-We will propose a design for the integrator stages of an oversampled ADC. The design is driven by some specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage.
-
+We will propose a design for the integrator stages of an oversampled ADC. The design is driven by specifications that include input-referred electronic noise, settling time as well as settling accuracy. We have chosen to use the same integrator architecture for both stages but tune the component values for each stage.\\
 
 \section{System-level Considerations}
 
 We started the design by modeling the ADC as transfer functions. We noticed that since the circuit implements an integration, the first stage should be a lot more carefully designed than the second stage. The input-referred noise transfer function from the output of the first stage is $N_1 = 2(z-1)$ while the second stage has a contribution that is affected by $N_2 = 0.25(z-1)^2$, assuming a second stage gain of 0.5. These transfer functions are also used later to verify the input-referred electronic noise of the circuit.
 
-We estimated that the noise power contribution of the second stage is approximately 1000 times smaller than the first stage. We also noted that if we split the noise of a stage to each phases' noises ($\Phi_1$ and $\Phi_2$), the noise from $\Phi_1$ is integrated along with the signal and is more important than the $\Phi_2$ noise. 
+We estimated that the noise power contribution of the second stage is approximately 1000 times smaller than the first stage. We also noted that if we split the noise of a stage to each phases' noises ($\Phi_1$ and $\Phi_2$), the noise from $\Phi_1$ is integrated along with the signal and is more important than the $\Phi_2$ noise. We use this analysis to size the sampling and feedback capacitors of both integrator stages separately.\\
 
 \section{Integrator Implementation}
 
@@ -48,48 +47,44 @@ Since the amplifiers form a second-order integrator, the first amplifier noise d
 $$N_{\Phi 1} = \frac{kT}{C_S + C_L}$$
 $$N_{\Phi 2} = \frac{\alpha}{\beta}\frac{kT}{C_{L,tot}}$$
 
-The value of $C_F$ is easily obtained from the required gain since the gain of the integrator is $C_F/C_S$. We want to budget $3.5 \mu$$V_{RMS}$ to the noise at $\Phi_1$ per differential input, but the signal bandwidth that we care about is only 100-500kHz and our equation for $N_{\phi 1}$ is over the entire spectrum. Therefore, we need to multiply the noise specification by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The noise that we want at the input therefore is $N_{\Phi 1}=250 \cdot (3.5)^2 \cdot 10^{-12} V/\sqrt{Hz}$. We rounded the capacitor values up to get some headroom for error.
+The value of $C_F$ is easily obtained from the required gain since the gain of the integrator is $C_F/C_S$. We want to budget $3.5 \mu$ $V_{RMS}$ to the noise at $\Phi_1$ per differential input, but the signal bandwidth that we care about is only 100-500kHz and our equation for $N_{\phi 1}$ is over the entire spectrum. Therefore, we need to multiply the noise specification by the Oversampling Ratio, which is $\frac{f_S}{2BW}$. The input referred noise that we want therefore is $N_{\Phi 1}=250 \cdot (3.5)^2 \cdot 10^{-12} V/\sqrt{Hz}$. We rounded the capacitor values up to get some headroom for error.
 
 %IMPT VALS
 $$C_S = 1.5pF$$ 
 $$C_F = 3pF$$
 
-Our load capacitor is the sampling capacitor of stage 2. We first started at 100fF and iterated the design process to size the load capacitor $C_L$.
+Our load capacitor is the sampling capacitor of stage 2. We first started at 100fF and iteratively lumped in parasitic capacitances from the OTA with the load capacitor.
 
-We next calculate the $G_m$ of the OTA necessary to meet the settling time with those capacitors from the settling time requirement. The equation below expresses the dynamic settling error specification assuming an amplifier with a closed loop pole at $\tau$ and a zero.
+We next calculate the $G_m$ of the OTA which is dictated by the unity gain bandwidth necessary to meet the settling time with those capacitors from the settling time requirement since $\omega_u = \frac{G_m}{C_{L,tot}} $. The equation below expresses the dynamic settling error specification assuming a zero, where $\tau$ is the unity gain bandwidth and $\beta=.67$.  
 
 $$t_s = -\tau ln \left(\epsilon_d \left(1-\beta \frac{C_F}{C_F-C_L}\right)\right)$$
 
-We budget half of the error to static error, so $\epsilon_d = 0.0005$. This results in a required transconductance of $G_m = 10.5mS$.
+We budget half of the error to static error and half to dynamic, so $\epsilon_d = 0.0005$. In addition, we budgeted .8ns of the settling time to slewing and devices in the second branch being pushed out of saturation so the $t_s = 1ns$. This results in a unity gain bandwidth of 1.4G and a required transconductance of $G_m = 10mS$.
 
 Next we calculated the required open loop gain of the amplifier. Since we are budgeting half of the settling error to static error, we require that
 $$\frac{1}{T} = \frac{1}{\beta A} = \epsilon_s = 0.0005$$
 
-With a $\beta$ of 0.67, the required open loop gain is 3000, or 70 dB. This results in a required output resistance of $300k\Omega$.
+With a $\beta$ of 0.67, the required open loop gain is 3000, or 70 dB. As a quick check, this results in a required output resistance of $300k\Omega$. Which is a bit high and requires at least cascoding.
 
 With the design parameters, we started by building an ideal OTA using a VCCS. We created a testbench for AC, noise, and transient analysis and ran simulations to make sure the settling time, and noise requirements are met. The noise simulation was a performed with a noise current source from a resistor of value $\frac{\alpha}{G_m}$ inside of the OTA and $10\Omega$ ON resistances in series with all of the switches. However, PSS and PNOISE are not really meant for integrators so we exported the noise density at the output of the integrator to Matlab, then multiplied by the input-refered transfer function from the noise source and then integrated over the signal bandwidth.
 
+With a one stage OTA, the transconductance is limited by the $g_m$ of the input device and we already determined that we need $g_m = 10mS$. Assuming a $V* = .2$, the current required is 1mA. We check that the current is close to that required for the slewing. To avoid slewing for extended periods of time, the current in the input device has to be large enough to charge the load capacitance. Since when the closed loop amplifier is subjected to a step input there is a capacitive divider effect from the input to the output node, the output has to slew more than the maximum single-ended output swing of $0.25V$. Designing for a $1V$ slew in $0.8ns$, with a total load capacitance of $C_{Ltot} = C_L + (1-\beta)C_F = 1.1pF$, the current needed in the input devices is $1.3mA$. Since the required $g_m$ is lower than that, we err on the side of more and use  $1.3mA$. Once it was implemented, we found that the slewing was not as bad as we had feared, and we backed off the current to $1.2mA$. This still gives us a higher unity gain BW than required, which means that we need to be sensitive of our phase margin, but the overestimation is not terrible since the unity gain BW is underestimated by assuming only a single pole system.\\
+
 \section{Design Alternatives}
 
-We started with a telescopic OTA with an NMOS input but quickly realized that the $V_{GS}$ of the input device is too large to get the V* we want since the input common mode of the OTA is $600mV$. To achieve high current efficiencies (low V*) the gate-source voltage of the device has to be close to the threshold voltage. We found that a $V_{GS}$ of 0.4V is required to achieve a V* of $0.14V$. Such a low V* is ideal in our situation since larger current requires larger devices, which reduces the $r_o$ of the devices.
+We started with a telescopic OTA with an NMOS input but quickly realized that there was not enough head room to maintain a common mode output voltage at 0.6V. We moved on to a folded cascode OTA architecture to obtain the necessary headroom. 
 
-Next we moved to a folded cascode OTA architecture. With a folded cascode, the $V_{GS}$ of the input device can be almost arbitrarily set by the tail current. Setting the $V_{GS}$ to $0.4V$ provides us with the V* we desired. 
+The current of the cascode branch is typically about 1.5 time greater than the current flowing through the input devices so the cascode devices stay biased properly, otherwise they could contribute to lower gain for longer while the capacitor is charging. Thus the current through the 
 
-The transconductance $g_m$ we needed is limited by the dynamic settling time. Using the dynamic settling equation with a pole and a zero, we found that the $g_m$ required for the OTA is $\_21mS\_$. With a V* of $0.14V$, the drain current is $\_1.5mA\_$.
+After attempting to build the OTA, we found that cascoding was not enough to obtain the $300K\Omega$ necessary. With the bias currents in the design, this output resistance was unachievable. To realize the high output resistances, we added gain boosters to the folded cascode OTA. Fig. \ref{fig:main-ota} shows the gain-boosted folded cascode OTA circuit. The gain booster specs are derived from the un-boosted output resistance and the bandwidth of the OTA. Based on the output resistance looking up from the output node $R_{out, up} = g_{m7}r_{o7}(r_{o5}||r_{o3}||r_{o1})$ which we estimated to be a bit less than $10k\Omega$ so the PMOS gain booster require an open loop gain of $36dB$. The output resistance looking down from the output node is $R_{out, down} = g_{m9}r_{o9}r_{o11}$ which we estimated around $50k\Omega$. This is relatively high compared to $R_{out, up}$, but is still not high enough to meet the total output resistance of $300k\Omega$. We set the same specs for the nmos gain booster since then the top resistance would dominate and the output resistance would be met.
 
-We set the current of the cascode branch to be greater than the current flowing through the input devices so the cascode devices never has zero current flowing through them even during slewing. This is important since the slew rate is now only dependent on the first stage current.
+There are several bandwidth requirements for the gainboosters in order to ensure stability. First, the unity gain bandwidth of the gain booster has to be larger than the 3dB point of the closed loop OTA. Second, the gainbooster must have at least 45 degrees of phase margin. This meant that our gain boosted bandwidth needed to be larger than 3GHz. 
 
-To avoid slewing for extended periods of time, the current in the input device has to be large enough to charge the load capacitance. Since when the closed loop amplifier is subjected to a step input there is a capacitive divider effect from the input to the output node, the output has to slew more than the maximum single-ended output swing of $0.25V$. Designing for a $0.5V$ slew in 0.4ns, with a total load capacitance of $C_{Ltot} = C_L + (1-\beta)C_F = \_1.1pF\_$, the current needed in the input devices is $1.5mA$. Since the required $g_m$ of the OTA already enforces this drain current, we do not need to worry about slewing.
+To build these gain boosters, we attempted to use a simple differential pair, but the input voltage bias and the output voltage bias are not ideal for such an architecture. For example, the PMOS gain boosters have an input voltage of $1V$ and an output voltage of $0.4V$. Using an NMOS input device would result in too much $V_{GS}$, hence too high V* and it would be power expensive to get the necessary gm. Just like the main OTA, we solved this problem by implementing a folded cascode. We obtained the gate capacitance from the dc simulation to estimate the gain booster load. Thus we used the same design process as above to choose $g_m$ and current for the gainboosters, but with a slightly larger $V*$ so that the larger bandwidth spec would be met. We were also particularly careful to keep the PMOS gain booster input devices small since they contributed parasitic capacitance to the node of the second pole and worsened the phase margin.
 
-After attempting to build the OTA, we discovered that getting the output resistance to be high is very hard with the current architecture. The required open loop gain is $3000$, and with a $g_m$ of $\_21mS\_$ the required output resistance is $\_143k\Omega\_$. With the bias currents in the design, this output resistance is unachievable.
+Once the gain boosters were designed, implemented, and verified in dc sim and in stability analysis, we were able to check the OTA again. The OTA needed only a bit of tweaking of biasing tweaking, so that the input to the OTA was now .65V instead of .6V in order to trade a little extra bandwidth for the gain we needed. For the second stage, this tweaking was done by adjusting the current a bit through the diff pair in order to decrease the much larger unity gain bandwidth and improve the phase margin. The differential phase margin of both OTAs ended up being around 80 degrees for both stages, which is necessary for a small percent error.
 
-To realize the high output resistances, we added gain boosters to the folded cascode OTA. The gain booster requirements are derived from the current output resistance and the bandwidth of the OTA. Fig. \ref{fig:main-ota} shows the gain-boosted folded cascode OTA circuit. based on the output resistance looking up from the output node $R_{out, up} = g_{m7}r_{o7}(r_{o5}||r_{o3}||r_{o1})$, the PMOS gain booster require an open loop gain of $36dB$. On top of that, the unity gain of the gain booster has to be larger than the 3dB bandwidth of the closed loop amplifier; we set the unity gain bandwidth to \_\_.
-
-The output resistance looking down from the output node is $R_{out, down} = g_{m9}r_{o9}r_{o11}$. This is relatively high compared to $R_{out, up}$, but is still not high enough to meet the total output resistance of $\_143k\Omega\_$. We also added a gain booster with an open loop gain of \_\_ and a unity gain bandwidth of \_\_.
-
-To build these gain boosters, we attempted to use a common differential pair, but the input voltage bias and the output voltage bias are not ideal for such an architecture. For example, the PMOS gain boosters have an input voltage of $1V$ and an output voltage of $0.4V$. Using an NMOS input device would result in too much $V_{GS}$, hence too high V*. Just like the main OTA, we solved this problem by implementing a folded cascode.
-
-gain booster design here
+Finally, we implemented the common mode feedback. We first tried a differential common mode feedback circuit to compare the output against a constant .6V and control the current of the top two PMOS of the folded cascode. However, when we measured the \\
 
 
 \section{Circuit Implementation}
@@ -104,7 +99,7 @@ gain booster design here
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|} 
 \hline
-Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+Device & W ($\mu$) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
 \hline
 \multicolumn{7}{|c|}{Differential pair} \\
 \hline
@@ -122,7 +117,7 @@ M7/8 & 79.38 & 100 & 0.25 & 1.77 & 14.3 & 18.3 \\
 \hline
 M9/10 & 71.35 & 300 & 0.19 & 1.77 & 18.8 & 97.2 \\
 \hline
-M11/12 & 88.56 & 200 & 0.15 & 1.45Pm77 & 23.3 & 17.2 \\
+M11/12 & 88.56 & 200 & 0.15 & 1.45 & 23.3 & 17.2 \\ %Pm77
 \hline
 \multicolumn{7}{|c|}{CMFB} \\
 \hline
@@ -148,7 +143,7 @@ MC5 & 195.3 & 140 & 0.14 & 1.52 & 21.4 & 5.02 \\
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|} 
 \hline
-Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+Device & W ($\mu$) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
 \hline
 \multicolumn{7}{|c|}{Differential pair} \\
 \hline
@@ -178,7 +173,7 @@ M7/8 & 4 & 100 & 0.28 & 0.5 & 3.5 & 89 \\
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|} 
 \hline
-Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+Device & W ($\mu$) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
 \hline
 \multicolumn{7}{|c|}{Differential pair} \\
 \hline
@@ -208,7 +203,7 @@ M7/8 & 7.13 & 60 & 0.44 & 2.2 & 10.1 & 237 \\
 \begin{center}
 \begin{tabular}{|c|c|c|c|c|c|c|} 
 \hline
-Device & W (\mu) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
+Device & W ($\mu$) & L (n) & V* & $I_D$(m) & $g_m$(m) & $f_T$(G) \\
 \hline
 MB1 & 5.89 & 80 & 0.19 & 0.5 & 5.27 & 128 \\
 \hline
@@ -236,10 +231,85 @@ MB11 & 14.5 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
 \end{center}
 
 
-
 \section{Design Verification}
 
+The spec specified that the OTA would be used in a delta-sigma ADC with a +/-1V differential square wave from the D/A. Therefore, we assumed that the settling time needed to be met, at worst, for a 1V differential input signal. So with a gain of .5, the output needed to settle to .5V differential in 1.8ns. This is how we determined that our settling and dynamic error met spec.
 
+Running transient on a 1V step after enough time for the common mode feedback was the ultimate verification of our design, but stability analysis was the first check of our design to make sure that the transient would be stable and the settling time would meet. Stability sims were run on the gain boosters, the common mode feedback loop, and the OTA constant time integrator loop of both stages.
+
+Stability analysis shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The common mode feedback loop is included as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.\\
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st1_diff_ac}
+\caption{Stability Analysis simulation of the differential loop for the first stage}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st1_cm_ac}
+\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st2_diff_ac}
+\caption{Stability Analysis simulation of the differential loop for the first stage}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st2_cm_ac}
+\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\label{stage1-tran}
+\end{figure}
+
+
+The transient simulation was used to verify that the output settled to within 0.1 percent at 1.8ns. We plotted both the differential output and separate outputs. Settling is easily verified from the differential output, and common mode output is seen from second transient graph. The second graph shows that there is some common mode settling that occurs immediately after switching, which is not reflected in the differential. Both stages are verified in this manner, and meet spec.
+
+In addition, transient was used to examine the effect of slewing on the 1V step settling. As you can see in the final transient figure, the highlighted line is current which is constant as the circuit supplies the entire 1.6mA that is can before it is no longer biased properly. The slewing occurs for the .5ns that is was allotted for settling.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st1_error}
+\caption{Transient settling error of first integrator for a 100mV input}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st1_trans}
+\caption{Transient response of first integrator for a 100mV input}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st2_error}
+\caption{Transient settling error of first integrator for a 100mV input}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st2_trans}
+\caption{Transient response of first integrator for a 100mV input}
+\label{stage1-tran}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{piktures/st1_slew}
+\caption{Transient response of first integrator for a 1V input showing slewing}
+\label{stage1-tran}
+\end{figure}
+
+Finally, to determine that the noise spec was met, we ran noise sims over XXX1600XXX sidebands and XXX400XXX harmonics. We used ideal switches instead of transistors, but used series resistors to simulate noise from switch resistance. We input referred the noise to obtain the values seen in the results.\\
 
 \section{Final Specification}
 
@@ -248,7 +318,7 @@ MB11 & 14.5 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
 \hline
 Gain & 0.5 \\
 \hline
-Input Referred Noise & 9.18 $\mu$$V_{RMS}$ \\
+Input Referred Noise & 9.18 $\mu$ $V_{RMS}$ \\
 \hline
 Settling & 0.1\% in 1.27 ns \\
 \hline
