@@ -268,7 +268,11 @@ Total Power & 43.056 mW \\
 
 \section{Design Critique}
 
-flicker? - chopper stabilization
+Our integrator circuit is over designed. We settle faster than the required spec and have lower noise than required. The circuit has a large footprint and burns more power than necessary to do this. We could have traded some power to more closely meet specs, especially in the second stage, where we had to add a load cap in order to get the necessary phase margin. If power was a tight spec, then we would have done this, but considering variation across the die and across chips, we decided that it was better to overshoot and make a circuit that is more easily built and with a better yield. This is especially important for our circuit because we chose very particular widths and lengths for our mosfets, which makes the circuit harder to actualize in silicon. Variation would have a large effect, so a little over-design is not a huge problem if the power budget can afford it. If we had more time we would have continued to tweak values and biases to see if we could obtain the same performance for lower power.
+
+Second, our design did not take flicker noise into account. If we had, then our larger width and higher power would have been an advantage, but we assumed that since this was for an ADC application it was typical to add a chopper and then flicker would not be a concern.
+
+Our design did not do anything to correct for offset, which might be a concern because our input devices are a bit small and thus variation would have a significant effect. However, considering that the application is an ADC this is not too concerning because the effect of OTA offset from fabrication mismatch is negligible because Delta-Sigma modulators are relatively insensitive to offset [3].
 
 
 
