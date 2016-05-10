@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{stfloats}
 \usepackage{verbatim}
+\usepackage{multicol}
 \hyphenation{op-tical net-works semi-conduc-tor}
 
 
@@ -233,83 +234,20 @@ MB11 & 14.5 & 140 & 0.28 & 0.5 & 3.57 & 9.17 \\
 
 \section{Design Verification}
 
-The spec specified that the OTA would be used in a delta-sigma ADC with a +/-1V differential square wave from the D/A. Therefore, we assumed that the settling time needed to be met, at worst, for a 1V differential input signal. So with a gain of .5, the output needed to settle to .5V differential in 1.8ns. This is how we determined that our settling and dynamic error met spec.
+The spec specified that the OTA would be used in a delta-sigma ADC with a +/-1V differential square wave from the D/A. Therefore, we assumed that the settling time needed to be met, at worst, for a 1V differential input signal. So with a gain of .5, the output needed to settle to .5V differential in 1.8ns. This is how we determined that our settling and dynamic error met spec in fig. \ref{fig:st1_error}.
 
 Running transient on a 1V step after enough time for the common mode feedback was the ultimate verification of our design, but stability analysis was the first check of our design to make sure that the transient would be stable and the settling time would meet. Stability sims were run on the gain boosters, the common mode feedback loop, and the OTA constant time integrator loop of both stages.
 
-Stability analysis shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The common mode feedback loop is included as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.\\
+Stability analysis in figs. \ref{fig:st1_diff_ac}, \ref{fig:st1_cm_ac}, \ref{fig:st2_diff_ac} and \ref{fig:st2_cm_ac} shows that indeed, the unity gain bandwidth and phase margin requirements are met and surpassed for both the first and second stages. We originally had some trouble with stability from the gain boosters, and the Phase Margin report from the stability analysis was very necessary to verify before using the gain boosters in the larger circuit. The common mode feedback loop is included as well because the integrator is unstable for phase margin of less than 45 degrees, which is not reflected in the differential loop analysis.
 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st1_diff_ac}
-\caption{Stability Analysis simulation of the differential loop for the first stage}
-\label{stage1-tran}
-\end{figure}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st1_cm_ac}
-\caption{Stability Analysis simulation of the common mode loop for the first stage}
-\label{stage1-tran}
-\end{figure}
+The transient simulation was used to verify that the output settled to within 0.1 percent at 1.8ns. We plotted both the differential output and separate outputs. Settling is easily verified from the differential output in figs. \ref{fig:st1_error} and \ref{fig:st2_error}, and common mode output is seen in figs. \ref{fig:st1_trans} and \ref{fig:st2_trans}. This figure shows that there is some common mode settling that occurs immediately after switching, which is not reflected in the differential. Both stages are verified in this manner, and meet spec.
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st2_diff_ac}
-\caption{Stability Analysis simulation of the differential loop for the first stage}
-\label{stage1-tran}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st2_cm_ac}
-\caption{Stability Analysis simulation of the common mode loop for the first stage}
-\label{stage1-tran}
-\end{figure}
+In addition, transient was used to examine the effect of slewing on the 1V step settling. As you can see in the final transient simulation in fig. \ref{fig:st1_slew}, the highlighted line is the output current which is constant as the circuit supplies the entire 1.6mA that is can before it is no longer biased properly. The slewing occurs for the .5ns that is was allotted for settling.
 
 
-The transient simulation was used to verify that the output settled to within 0.1 percent at 1.8ns. We plotted both the differential output and separate outputs. Settling is easily verified from the differential output, and common mode output is seen from second transient graph. The second graph shows that there is some common mode settling that occurs immediately after switching, which is not reflected in the differential. Both stages are verified in this manner, and meet spec.
-
-In addition, transient was used to examine the effect of slewing on the 1V step settling. As you can see in the final transient figure, the highlighted line is current which is constant as the circuit supplies the entire 1.6mA that is can before it is no longer biased properly. The slewing occurs for the .5ns that is was allotted for settling.
-
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st1_error}
-\caption{Transient settling error of first integrator for a 100mV input}
-\label{stage1-tran}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st1_trans}
-\caption{Transient response of first integrator for a 100mV input}
-\label{stage1-tran}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st2_error}
-\caption{Transient settling error of first integrator for a 100mV input}
-\label{stage1-tran}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st2_trans}
-\caption{Transient response of first integrator for a 100mV input}
-\label{stage1-tran}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{piktures/st1_slew}
-\caption{Transient response of first integrator for a 1V input showing slewing}
-\label{stage1-tran}
-\end{figure}
-
-Finally, to determine that the noise spec was met, we ran noise sims over XXX1600XXX sidebands and XXX400XXX harmonics. We used ideal switches instead of transistors, but used series resistors to simulate noise from switch resistance. We input referred the noise to obtain the values seen in the results.\\
+Finally, to determine that the noise spec was met, we ran noise sims over 1600 sidebands and 400 harmonics. We used ideal switches instead of transistors, but used series resistors to simulate noise from switch resistance. We input referred the noise to obtain the values seen in the results.\\
 
 \section{Final Specification}
 
@@ -342,7 +280,84 @@ Our integrator circuit is over designed. We settle faster than the required spec
 
 Second, our design did not take flicker noise into account. If we had, then our larger width and higher power would have been an advantage, but we assumed that since this was for an ADC application it was typical to add a chopper and then flicker would not be a concern.
 
-Our design did not do anything to correct for offset, which might be a concern because our input devices are a bit small and thus variation would have a significant effect. However, considering that the application is an ADC this is not too concerning because the effect of OTA offset from fabrication mismatch is negligible because Delta-Sigma modulators are relatively insensitive to offset [3].
+Our design did not do anything to correct for offset, which might be a concern because our input devices are a bit small and thus variation would have a significant effect. However, considering that the application is an ADC this is not too concerning because the effect of OTA offset from fabrication mismatch is negligible because Delta-Sigma modulators are relatively insensitive to offset [1].
+
+
+
+
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st1_diff_ac}
+\caption{Stability Analysis simulation of the differential loop for the first stage}
+\label{fig:st1_diff_ac}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st1_cm_ac}
+\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\label{fig:st1_cm_ac}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st2_diff_ac}
+\caption{Stability Analysis simulation of the differential loop for the first stage}
+\label{fig:st2_diff_ac}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st2_cm_ac}
+\caption{Stability Analysis simulation of the common mode loop for the first stage}
+\label{fig:st2_cm_ac}
+\end{figure*}
+
+
+
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st1_error}
+\caption{Transient settling error of first integrator for a 100mV input}
+\label{fig:st1_error}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st1_trans}
+\caption{Transient response of first integrator for a 100mV input}
+\label{fig:st1_trans}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st2_error}
+\caption{Transient settling error of first integrator for a 100mV input}
+\label{fig:st2_error}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st2_trans}
+\caption{Transient response of first integrator for a 100mV input}
+\label{fig:st2_trans}
+\end{figure*}
+
+\begin{figure*}[H]
+\centering
+\includegraphics[height=250px]{piktures/st1_slew}
+\caption{Transient response of first integrator for a 1V input showing slewing}
+\label{fig:st1_slew}
+\end{figure*}
+
+
+
+
+
+
+
 
 
 
